@@ -62,7 +62,10 @@ class SearchModel(QAbstractItemModel):
         )
         data = json.loads(r.stdout.decode('utf-8'))
         self.d[index.row()] = data[0]
-        self.dataChanged.emit(index, index)
+        self.dataChanged.emit(
+            index.siblingAtColumn(0),
+            index.siblingAtColumn(len(columns)-1),
+        )
 
     def num_threads(self) -> int:
         """The number of threads returned by the search"""
