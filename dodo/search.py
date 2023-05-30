@@ -53,6 +53,17 @@ class SearchModel(QAbstractItemModel):
             self.d = {}
         self.endResetModel()
 
+    def refresh_index(self, index: QModelIndex) -> None:
+        """Refresh the data for the given index."""
+        thread_id = self.thread_id(index)
+        r = subprocess.run(
+            ['notmuch', 'search', '--format=json', f"thread:{thread_id}"],
+            stdout=subprocess.PIPE,
+        )
+        data = json.loads(r.stdout.decode('utf-8'))
+        self.d[index.row()] = data[0]
+        self.dataChanged.emit(index, index)
+
     def num_threads(self) -> int:
         """The number of threads returned by the search"""
 
@@ -311,8 +322,8 @@ class SearchPanel(panel.Panel):
         elif mode == 'tag marked':
             subprocess.run(['notmuch', 'tag'] + tag_expr.split() + ['-marked','--', f'tag:marked AND ({self.q})'])
 
-        self.app.refresh_panels()
-
+        self.app.refresh_panels(skip_focused=True)
+        self.model.refresh_index(self.tree.currentIndex())
 
 
 

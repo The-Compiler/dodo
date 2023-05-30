@@ -268,19 +268,22 @@ class Dodo(QApplication):
 
         return self.tabs.count()
 
-    def refresh_panels(self) -> None:
+    def refresh_panels(self, *, skip_focused: bool = False) -> None:
         """Refresh current panel and mark the others as out of date
 
         This method gets called whenever tags have been changed or a new message has
         been sent. The refresh will happen the next time a panel is switched to."""
 
         for i in range(self.num_panels()):
+            if skip_focused and i == self.tabs.currentIndex():
+                continue
             w = self.tabs.widget(i)
             if isinstance(w, panel.Panel):
                 w.dirty = True
 
-        w = self.tabs.currentWidget()
-        if w and isinstance(w, panel.Panel): w.refresh()
+        if not skip_focused:
+            w = self.tabs.currentWidget()
+            if w and isinstance(w, panel.Panel): w.refresh()
 
     def prompt_quit(self) -> None:
         """A 'soft' quit function, which gives each open tab the opportunity to prompt
