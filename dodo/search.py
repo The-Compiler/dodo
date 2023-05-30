@@ -46,8 +46,11 @@ class SearchModel(QAbstractItemModel):
         self.beginResetModel()
         r = subprocess.run(['notmuch', 'search', '--format=json', self.q],
                 stdout=subprocess.PIPE)
-        self.json_str = r.stdout.decode('utf-8')
-        self.d = json.loads(self.json_str)
+        if r.returncode == 0:
+            self.json_str = r.stdout.decode('utf-8')
+            self.d = json.loads(self.json_str)
+        else:
+            self.d = {}
         self.endResetModel()
 
     def num_threads(self) -> int:
