@@ -413,7 +413,7 @@ class ThreadPanel(panel.Panel):
                         if sig['status'] == 'error':
                             header_html += f"{' '.join(sig['errors'].keys())} (keyid={sig['keyid']})"
                         elif sig['status'] == 'good':
-                            header_html += f"{sig['userid']} ({sig['fingerprint']})"
+                            header_html += f"{sig.get('userid', 'no user ID')} ({sig['fingerprint']})"
                         elif sig['status'] == 'bad':
                             header_html += f"keyid={sig['keyid']}"
                         header_html += "</td></tr>"
