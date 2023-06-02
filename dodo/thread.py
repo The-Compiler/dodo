@@ -323,6 +323,8 @@ class ThreadPanel(panel.Panel):
         self.message_profile.installUrlSchemeHandler(b'message', self.message_handler)
         self.message_profile.settings().setAttribute(
                 QWebEngineSettings.WebAttribute.JavascriptEnabled, False)
+        # notmuch always converts its JSON output to UTF-8
+        self.message_profile.settings().setDefaultTextEncoding("utf-8")
 
         self.message_view = QWebEngineView(self)
         page = MessagePage(self.app, self.message_profile, self.message_view)
