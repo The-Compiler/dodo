@@ -418,6 +418,11 @@ class ThreadPanel(panel.Panel):
                             header_html += f"keyid={sig['keyid']}"
                         header_html += "</td></tr>"
 
+            header_html += f"""<tr>
+              <td><b style="color: {settings.theme["fg_bright"]}">Id:&nbsp;</b></td>
+              <td>{util.simple_escape(m["id"])}</td>
+            </tr>"""
+
             header_html += '</table>'
             self.message_info.setHtml(header_html)
 
