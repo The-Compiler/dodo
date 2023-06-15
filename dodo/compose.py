@@ -77,6 +77,8 @@ class ComposePanel(panel.Panel):
             email_sep = re.compile('\s*,\s*')
             if 'From' in msg['headers']:
                 senders.append(msg["headers"]["From"])
+            if 'Reply-To' in msg['headers']:
+                senders.append(msg["headers"]["Reply-To"])
             if 'To' in msg['headers']:
                 recipients += email_sep.split(msg['headers']['To'])
             if 'Cc' in msg['headers']:
@@ -359,7 +361,7 @@ class SendmailThread(QThread):
         super().__init__(parent)
         self.panel = panel
 
-    def sign(self, msg: email.message.EmailMessage) -> email.message.EmailMessage:
+    def sign(self, msg: email.message.EmailMessage) -> Optional[email.message.EmailMessage]:
 
         RFC4880_HASH_ALGO = {'1': "MD5", '2': "SHA1", '3': "RIPEMD160",
                              '8': "SHA256", '9': "SHA384", '10': "SHA512",
@@ -395,6 +397,9 @@ class SendmailThread(QThread):
         # Create the signature
         gpg = gnupg.GPG(gnupghome=settings.gnupg_home, use_agent=True)
         sig = gpg.sign(msg_to_sign.as_string(), keyid=settings.gnupg_keyid, detach=True)
+        if sig.hash_algo is None:  # aborted
+            return None
+
         # Attach the ASCII representation (as per rfc) of the signature, note that
         # set_content with contaent-type other then text requires a bytes object
         sigpart = email.message.EmailMessage()
@@ -460,7 +465,12 @@ class SendmailThread(QThread):
                     print("Can't read attachment: " + att)
 
             if self.panel.pgp_sign:
-                eml = self.sign(eml)
+                signed = self.sign(eml)
+                if signed is None:
+                    self.pgp_sign = False
+                    self.refresh()
+                else:
+                    eml = signed
 
             cmd = settings.send_mail_command.replace('{account}', account)
             sendmail = Popen(cmd, stdin=PIPE, encoding='utf8', shell=True)
