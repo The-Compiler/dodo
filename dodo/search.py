@@ -217,8 +217,7 @@ class SearchPanel(panel.Panel):
 
     def title(self) -> str:
         """Give the query as the tab title"""
-
-        return self.q
+        return f"{self.q} [{self.model.rowCount()}]"
 
     def next_thread(self, unread: bool=False) -> None:
         """Select the next thread in the search

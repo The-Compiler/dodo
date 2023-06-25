@@ -127,10 +127,18 @@ class Dodo(QApplication):
         from key mappings."""
 
         self.tabs.addTab(p, p.title())
+        p.refreshed.connect(self.on_panel_refreshed)
 
         if focus:
             self.tabs.setCurrentWidget(p)
             p.setFocus()
+
+    def on_panel_refreshed(self) -> None:
+        """Refresh title when a panel was refreshed."""
+        panel = self.sender()
+        index = self.tabs.indexOf(panel)
+        self.tabs.setTabText(index, panel.title())
+
 
     def next_panel(self) -> None:
         """Go to the next panel"""
