@@ -235,6 +235,8 @@ def write_attachments(m: dict) -> Tuple[str, List[str]]:
     file_paths = []
 
     for part in message_parts(m):
+        if part.get("content-type") == "application/pgp-encrypted":
+            continue
         if part.get("content-disposition") == "attachment":
             proc = subprocess.run(
                 ["notmuch", "show", "--part", str(part["id"]), "--", "id:" + m["id"]],
