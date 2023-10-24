@@ -444,7 +444,7 @@ class SendmailThread(QThread):
 
                             if "References" in old_msg:
                                 refs = old_msg["References"].split() + refs
-                    except IOError:
+                    except (IOError, UnicodeDecodeError):
                         print("Couldn't open message to get References")
 
                 eml["References"] = ' '.join(refs)
