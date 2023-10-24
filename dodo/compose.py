@@ -465,12 +465,10 @@ class SendmailThread(QThread):
                     print("Can't read attachment: " + att)
 
             if self.panel.pgp_sign:
-                signed = self.sign(eml)
-                if signed is None:
-                    self.pgp_sign = False
-                    self.refresh()
-                else:
-                    eml = signed
+                eml = self.sign(eml)
+                if eml is None:
+                    self.panel.status = f'<i style="color:{settings.theme["fg_bad"]}">sign error</i>'
+                    return
 
             cmd = settings.send_mail_command.replace('{account}', account)
             sendmail = Popen(cmd, stdin=PIPE, encoding='utf8', shell=True)
