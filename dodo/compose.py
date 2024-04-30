@@ -43,8 +43,8 @@ from . import util
 # gnupg is only needed for pgp/mime support, do not throw when not present
 try:
     import gnupg
-except ImportError as ex:
-    pass
+except ModuleNotFoundError as ex:
+    gnupg = None
 
 class ComposePanel(panel.Panel):
     """A panel for composing messages
@@ -362,6 +362,9 @@ class SendmailThread(QThread):
         self.panel = panel
 
     def sign(self, msg: email.message.EmailMessage) -> Optional[email.message.EmailMessage]:
+        if gnupg is None:
+            print("gnupg module not found, but needed to sign messages")
+            return None
 
         RFC4880_HASH_ALGO = {'1': "MD5", '2': "SHA1", '3': "RIPEMD160",
                              '8': "SHA256", '9': "SHA384", '10': "SHA512",
