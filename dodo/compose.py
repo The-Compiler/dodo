@@ -28,13 +28,11 @@ import email.utils
 import email.parser
 import email.generator
 import email.policy
-import email.message
 import mimetypes
 import subprocess
 import traceback
 from subprocess import PIPE, Popen, TimeoutExpired
 import tempfile
-import typing
 import os
 import re
 
@@ -368,14 +366,19 @@ class SendmailThread(QThread):
     def run(self) -> None:
         try:
             account = self.panel.account_name()
-            eml = typing.cast(email.message.EmailMessage, email.message_from_string(
-                self.panel.message_string,
-                policy = email.policy.EmailPolicy(utf8=False)))
-            attachments: List[str] = eml.get_all('A', [])
-            del eml['A']
+            m = email.message_from_string(self.panel.message_string)
+            eml = email.message.EmailMessage(policy=email.policy.EmailPolicy(utf8=False))
+            attachments: List[str] = m.get_all('A', [])
+
+            # n.b. this kills duplicate headers. May want to revisit this if it causes problems.
+            for h in m.keys():
+                if h != 'A':
+                    eml[h] = m[h]
 
             eml['Message-ID'] = email.utils.make_msgid()
             eml['User-Agent'] = 'Dodo'
+
+            eml.set_content(m.get_payload())
 
             # add a date if it's missing
             if not "Date" in eml:
