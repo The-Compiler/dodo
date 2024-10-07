@@ -27,6 +27,7 @@ import tempfile
 import subprocess
 import email
 import email.header
+import email.message
 import email.utils
 import email.policy
 import textwrap
