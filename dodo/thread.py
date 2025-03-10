@@ -296,7 +296,7 @@ class ThreadModel(QAbstractItemModel):
 
     def _fetch_full_thread(self) -> list:
         r = subprocess.run(['notmuch', 'show', '--exclude=false', '--format=json', '--verify', '--include-html', '--decrypt=true', self.thread_id],
-                stdout=subprocess.PIPE, encoding='utf8')
+                stdout=subprocess.PIPE, encoding='utf8', errors='replace')  # 6A79497BAB764AB38C7F0BA1607B46BF@ad.ugs.net
         return json.loads(r.stdout)
 
     def _fetch_matching_ids(self) -> set[str]:
